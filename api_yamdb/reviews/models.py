@@ -24,4 +24,11 @@ class Review(models.Model):
 
 
 class Comment(models.Model):
-    pass
+    """Модель комментария к произведению."""
+
+    text = models.TextField(verbose_name='Текст комментария')
+
+    class Meta:
+        default_related_name = 'comments'
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
