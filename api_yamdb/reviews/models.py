@@ -16,6 +16,7 @@ class Genre(models.Model):
 
 class Title(models.Model):
     pass
+    blablabla
 
 
 class Review(models.Model):
