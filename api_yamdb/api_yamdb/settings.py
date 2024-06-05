@@ -18,7 +18,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'review.apps.ReviewsConfig',
+    'reviews.apps.ReviewsConfig',
     'api.apps.ApiConfig',
 ]
 

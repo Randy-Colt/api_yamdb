@@ -25,6 +25,7 @@ class User(AbstractUser):
         default=Role.USER
     )
     confirmation_code = models.CharField(
+        max_length=300,
         unique=True,
         blank=True,
         null=True,
@@ -59,9 +60,9 @@ class Genre(models.Model):
     """Модель для представления жанра произведения."""
 
     name = models.CharField(
-        vernose_name='Название',
+        verbose_name='Название',
         max_length=256,
-        unique=True  # есть ли смысл в жанрах с одинаковым именем?
+        unique=True
     )
     slug = models.SlugField(verbose_name='Слаг', max_length=50, unique=True)
 
@@ -96,7 +97,7 @@ class Title(models.Model):
 class Review(models.Model):
     """Модель отзыва к произведению."""
 
-    title_id = models.ForeignKey(  # может изменить на title?
+    title_id = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
         verbose_name='Произведение'
