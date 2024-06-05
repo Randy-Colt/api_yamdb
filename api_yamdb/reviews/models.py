@@ -11,7 +11,7 @@ class User(AbstractUser):
         MODER = 'moderator'
         ADMIN = 'admin'
 
-    email = models.EmailField('Почта', unique=True)
+    email = models.EmailField('Почта', max_length=254, unique=True)
     bio = models.TextField(
         verbose_name='Биография',
         max_length=300,
@@ -31,6 +31,10 @@ class User(AbstractUser):
         editable=False
     )
 
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
 
 class Category(models.Model):
     """Модель категории."""
@@ -47,15 +51,19 @@ class Category(models.Model):
     )
 
     class Meta:
-        verbose_name = 'категория'
+        verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
 
 class Genre(models.Model):
     """Модель для представления жанра произведения."""
 
-    name = models.CharField(max_length=256, vernose_name='Название')
-    slug = models.SlugField(max_length=50, verbose_name='Slug', unique=True)
+    name = models.CharField(
+        vernose_name='Название',
+        max_length=256,
+        unique=True  # есть ли смысл в жанрах с одинаковым именем?
+    )
+    slug = models.SlugField(verbose_name='Слаг', max_length=50, unique=True)
 
     class Meta:
         verbose_name = 'Жанр'
@@ -64,33 +72,49 @@ class Genre(models.Model):
 
 class Title(models.Model):
     """ Модель для хранения информации о произведении."""
-    name = models.CharField(max_length=256, verbose_name='Название')
+
+    name = models.CharField(verbose_name='Название', max_length=256)
     year = models.IntegerField(verbose_name='Год выпуска')
-    description = models.TextField(verbose_name='Описание')
-    genre = models.ManyToManyField('Genre', verbose_name='Жанр')
+    description = models.TextField(
+        verbose_name='Описание',
+        blank=True,
+        null=True
+    )
+    genre = models.ManyToManyField(Genre, verbose_name='Жанр')
     category = models.ForeignKey(
-        'Category', on_delete=models.CASCADE, verbose_name='Категория')
+        Category,
+        on_delete=models.CASCADE,
+        verbose_name='Категория'
+    )
 
     class Meta:
+        default_related_name = 'titles'
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
-        default_related_name = 'titles'
 
 
 class Review(models.Model):
     """Модель отзыва к произведению."""
 
-    title__id = models.IntegerField()  # Временная заглушка пока нет произведения.
+    title_id = models.ForeignKey(  # может изменить на title?
+        Title,
+        on_delete=models.CASCADE,
+        verbose_name='Произведение'
+    )
     text = models.TextField(verbose_name='Текст отзыва')
-    author = models.IntegerField(verbose_name='Автор отзыва')  # Временная заглушка пока нет юзера.
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Автор отзыва')
     score = models.IntegerField(
-        validators=[MinValueValidator(0), MaxValueValidator(10)],
-        verbose_name='Рейтинг'
+        verbose_name='Рейтинг',
+        validators=[MinValueValidator(0), MaxValueValidator(10)]
     )
     pub_date = models.DateTimeField(
         auto_now_add=True, verbose_name='Дата и время отзыва')
 
     class Meta:
+        ordering = 'pub_date',
         default_related_name = 'reviews'
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
@@ -102,13 +126,19 @@ class Comment(models.Model):
     review_id = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
+        verbose_name='Отзыв'
     )
     text = models.TextField(verbose_name='Текст комментария')
-    author = models.IntegerField(verbose_name='Автор комментария')  # Временная заглушка пока нет юзера.
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Автор комментария'
+    )
     pub_date = models.DateTimeField(
         auto_now_add=True, verbose_name='Дата и время комментария')
 
     class Meta:
+        ordering = 'pub_date',
         default_related_name = 'comments'
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'

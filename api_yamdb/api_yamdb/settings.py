@@ -77,6 +77,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = 'reviews.User'
+
 
 LANGUAGE_CODE = 'en-us'
 
