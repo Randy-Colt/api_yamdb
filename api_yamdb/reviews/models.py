@@ -2,6 +2,8 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
+from api.constants import MIN_SCORE, MAX_SCORE
+
 
 class User(AbstractUser):
     """Модель пользователя."""
@@ -109,7 +111,7 @@ class Review(models.Model):
         verbose_name='Автор отзыва')
     score = models.IntegerField(
         verbose_name='Рейтинг',
-        validators=[MinValueValidator(0), MaxValueValidator(10)]
+        validators=[MinValueValidator(MIN_SCORE), MaxValueValidator(MAX_SCORE)]
     )
     pub_date = models.DateTimeField(
         auto_now_add=True, verbose_name='Дата и время отзыва')
