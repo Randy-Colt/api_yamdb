@@ -18,3 +18,9 @@ class GenreViewSet(viewsets.ModelViewSet):
     serializer_class = GenreSerializer
 
 
+class ReviewViewSet(viewsets.ModelViewSet):
+    pass
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    pass
