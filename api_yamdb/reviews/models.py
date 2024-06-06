@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from api.constants import GENRE_SLUG_MAX, GENRE_NAME_MAX, TITLE_NAME_MAX
 
 
 class User(AbstractUser):
@@ -61,10 +62,11 @@ class Genre(models.Model):
 
     name = models.CharField(
         verbose_name='Название',
-        max_length=256,
+        max_length=GENRE_NAME_MAX,
         unique=True
     )
-    slug = models.SlugField(verbose_name='Слаг', max_length=50, unique=True)
+    slug = models.SlugField(
+        verbose_name='Слаг', max_length=GENRE_SLUG_MAX, unique=True)
 
     class Meta:
         verbose_name = 'Жанр'
@@ -74,7 +76,7 @@ class Genre(models.Model):
 class Title(models.Model):
     """ Модель для хранения информации о произведении."""
 
-    name = models.CharField(verbose_name='Название', max_length=256)
+    name = models.CharField(verbose_name='Название', max_length=TITLE_NAME_MAX)
     year = models.IntegerField(verbose_name='Год выпуска')
     description = models.TextField(
         verbose_name='Описание',
