@@ -1,6 +1,13 @@
 from rest_framework import serializers
-from reviews.models import Title, Genre, Category
-                            
+
+from reviews.models import (
+    Category,
+    Comment,
+    Genre,
+    Review,
+    Title,
+)
+
 
 class TitleSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Title."""
@@ -13,13 +20,13 @@ class TitleSerializer(serializers.ModelSerializer):
         queryset=Category.objects.all(),
         slug_field='slug'
     )
-    # rating = serializers.IntegerField(read_only=True)
+    rating = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Title
-        fields = ('id', 'name', 'year', 'description',
+        fields = ('id', 'name', 'year', 'rating', 'description',
                   'genre', 'category')
-    
+
 
 class GenreSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Genre."""
@@ -28,3 +35,28 @@ class GenreSerializer(serializers.ModelSerializer):
         model = Genre
         fields = ('name', 'slug')
 
+
+class ReviewSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Отзывов."""
+    # Закомментила пока нет авторизации!
+    # author = serializers.SlugRelatedField(
+    #     read_only=True,
+    #     slug_field='username'
+    # )
+
+    class Meta:
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        model = Review
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Комментариев."""
+    # Закомментила пока нет авторизации!
+    # author = serializers.SlugRelatedField(
+    #     read_only=True,
+    #     slug_field='username'
+    # )
+
+    class Meta:
+        fields = ('id', 'text', 'author', 'pub_date')
+        model = Comment
