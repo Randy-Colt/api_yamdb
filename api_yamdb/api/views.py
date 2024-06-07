@@ -1,19 +1,28 @@
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from rest_framework.permissions import IsAdminUser
 from rest_framework import viewsets
+from rest_framework.permissions import IsAdminUser
 
 from .serializers import (
+    CategorySerializer,
     CommentSerializer,
     GenreSerializer,
     ReviewSerializer,
     TitleSerializer
 )
+from .mixins import ListCreateDeleteMixin
 from reviews.models import (
+    Category,
     Genre,
     Review,
     Title
 )
+
+
+class CatigoryViewSet(ListCreateDeleteMixin):
+    queryset = Category
+    serializer_class = CategorySerializer
+
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -23,7 +32,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
 
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(ListCreateDeleteMixin):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
