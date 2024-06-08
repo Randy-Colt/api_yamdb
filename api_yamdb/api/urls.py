@@ -1,5 +1,10 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
+# Импорты как у Андрея!
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 from .constants import API_VERSION
 from .views import (

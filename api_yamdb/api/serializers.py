@@ -5,7 +5,7 @@ from reviews.models import (
     Comment,
     Genre,
     Review,
-    Title,
+    Title
 )
 
 
@@ -46,24 +46,35 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Отзывов."""
-    # Закомментила пока нет авторизации!
-    # author = serializers.SlugRelatedField(
-    #     read_only=True,
-    #     slug_field='username'
-    # )
+
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username'
+    )
 
     class Meta:
         fields = ('id', 'text', 'author', 'score', 'pub_date')
         model = Review
 
+    def validate(self, data):
+        request = self.context['request']
+        title_id = self.context['view'].kwargs.get('title_id')
+        if Review.objects.filter(
+            author=request.user, title_id=title_id
+        ).exists():
+            raise serializers.ValidationError(
+                'Вы уже оставили отзыв на это произведение.'
+            )
+        return data
+
 
 class CommentSerializer(serializers.ModelSerializer):
+
     """Сериализатор для модели Комментариев."""
-    # Закомментила пока нет авторизации!
-    # author = serializers.SlugRelatedField(
-    #     read_only=True,
-    #     slug_field='username'
-    # )
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username'
+    )
 
     class Meta:
         fields = ('id', 'text', 'author', 'pub_date')

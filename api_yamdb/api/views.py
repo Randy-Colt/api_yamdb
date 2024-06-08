@@ -1,6 +1,7 @@
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
+from rest_framework import permissions, viewsets
+
 
 from .serializers import (
     CategorySerializer,
@@ -54,8 +55,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         title = self.get_title()
         serializer.save(
-            # Закомментила пока нет авторизации!
-            # author=self.request.user,
+            author=self.request.user,
             title_id=title
         )
 
@@ -79,7 +79,6 @@ class CommentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         review = self.get_review()
         serializer.save(
-            # Закомментила пока нет авторизации!
-            # author=self.request.user,
+            author=self.request.user,
             review_id=review
         )
