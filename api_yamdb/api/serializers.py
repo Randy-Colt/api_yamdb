@@ -6,7 +6,18 @@ from reviews.models import (
     Genre,
     Review,
     Title,
+    User  # Не забудь удалить перед пушем!
 )
+
+
+# Костыль чтобы видеть и корректировать роль пользователей.
+# Не забудь удалить перед пушем!
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ('first_name', 'last_name', 'username',
+                  'bio', 'email', 'role')
+        model = User
 
 
 class TitleSerializer(serializers.ModelSerializer):
@@ -38,24 +49,38 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Отзывов."""
-    # Закомментила пока нет авторизации!
-    # author = serializers.SlugRelatedField(
-    #     read_only=True,
-    #     slug_field='username'
-    # )
+
+    # Работает на костыле авторизации!
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username'
+    )
 
     class Meta:
         fields = ('id', 'text', 'author', 'score', 'pub_date')
         model = Review
 
+    # Работает на костыле авторизации!
+    def validate(self, data):
+        request = self.context['request']
+        title_id = self.context['view'].kwargs.get('title_id')
+        if Review.objects.filter(
+            author=request.user, title_id=title_id
+        ).exists():
+            raise serializers.ValidationError(
+                'Вы уже оставили отзыв на это произведение.'
+            )
+        return data
+
 
 class CommentSerializer(serializers.ModelSerializer):
+
     """Сериализатор для модели Комментариев."""
-    # Закомментила пока нет авторизации!
-    # author = serializers.SlugRelatedField(
-    #     read_only=True,
-    #     slug_field='username'
-    # )
+    # Работает на костыле авторизации!
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username'
+    )
 
     class Meta:
         fields = ('id', 'text', 'author', 'pub_date')

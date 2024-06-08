@@ -1,19 +1,44 @@
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from rest_framework.permissions import IsAdminUser
-from rest_framework import viewsets
+from rest_framework import permissions, viewsets
 
 from .serializers import (
     CommentSerializer,
     GenreSerializer,
     ReviewSerializer,
-    TitleSerializer
+    TitleSerializer,
+    UserSerializer  # Не забудь удалить перед пушем!
 )
 from reviews.models import (
     Genre,
     Review,
-    Title
+    Title,
+    User # Не забудь удалить перед пушем!
 )
+
+
+# Пермишен Андрея, но с дополнением (безопаснве методы для obj)
+class IsAuthorOrReadOnly(permissions.BasePermission):
+    message = 'У вас нет доступа для совершения этого действия.'
+
+    def has_permission(self, request, view):
+        return (
+                request.method in permissions.SAFE_METHODS
+                or request.user.is_authenticated
+            )
+
+    def has_object_permission(self, request, view, obj):
+        return (
+            # На текущий момент работает только с этой строчкой
+            request.method in permissions.SAFE_METHODS
+            or obj.author == request.user
+        )
+
+
+# Не забудь удалить перед пушем!
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -33,6 +58,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     serializer_class = ReviewSerializer
     http_method_names = ['get', 'post', 'delete', 'patch']
+    permission_classes = (IsAuthorOrReadOnly,)
 
     def get_title(self):
         title_id = self.kwargs.get('title_id')
@@ -47,8 +73,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         title = self.get_title()
         serializer.save(
-            # Закомментила пока нет авторизации!
-            # author=self.request.user,
+            # Работает на костыле авторизации!
+            author=self.request.user,
             title_id=title
         )
 
@@ -58,6 +84,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     serializer_class = CommentSerializer
     http_method_names = ['get', 'post', 'delete', 'patch']
+    permission_classes = (IsAuthorOrReadOnly,)
 
     def get_review(self):
         review_id = self.kwargs.get('review_id')
@@ -72,7 +99,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         review = self.get_review()
         serializer.save(
-            # Закомментила пока нет авторизации!
-            # author=self.request.user,
+            # Работает на костыле авторизации!
+            author=self.request.user,
             review_id=review
         )
