@@ -9,6 +9,14 @@ from reviews.models import (
 )
 
 
+class CategorySerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Category."""
+
+    class Meta:
+        model = Category
+        fields = ('name', 'slug')
+
+
 class TitleSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Title."""
     genre = serializers.SlugRelatedField(

@@ -8,6 +8,7 @@ from rest_framework_simplejwt.views import (
 
 from .constants import API_VERSION
 from .views import (
+    CatigoryViewSet,
     CommentViewSet,
     GenreViewSet,
     ReviewViewSet,
@@ -16,6 +17,7 @@ from .views import (
 
 router_v1 = DefaultRouter()
 
+router_v1.register('categories', CatigoryViewSet, basename='categories')
 router_v1.register('titles', TitleViewSet, basename='titles')
 router_v1.register('genres', GenreViewSet, basename='genres')
 router_v1.register(
