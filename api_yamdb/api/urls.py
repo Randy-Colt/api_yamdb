@@ -11,14 +11,10 @@ from .views import (
     CommentViewSet,
     GenreViewSet,
     ReviewViewSet,
-    TitleViewSet,
-    UserViewSet  # Удали перед пушем!
+    TitleViewSet
 )
 
 router_v1 = DefaultRouter()
-
-# Костыль для просмотра юзеров! Удали перед пушем!
-router_v1.register('users', UserViewSet, basename='userss')
 
 router_v1.register('titles', TitleViewSet, basename='titles')
 router_v1.register('genres', GenreViewSet, basename='genres')
@@ -33,10 +29,4 @@ router_v1.register(
 
 urlpatterns = [
     path(f'{API_VERSION}/', include(router_v1.urls)),
-
-    # Костыли для просмотра юзеров! Удали перед пушем!
-    path(f'{API_VERSION}/token/',
-         TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path(f'{API_VERSION}/token/refresh/',
-         TokenRefreshView.as_view(), name='token_refresh'),
 ]
