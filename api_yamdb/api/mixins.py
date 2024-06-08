@@ -1,7 +1,8 @@
 from rest_framework import mixins, viewsets
 
+
 class ListCreateDeleteMixin(mixins.ListModelMixin,
                             mixins.CreateModelMixin,
                             mixins.DestroyModelMixin,
                             viewsets.GenericViewSet):
-    pass
+    lookup_field = 'slug'
