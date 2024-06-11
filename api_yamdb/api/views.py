@@ -1,16 +1,20 @@
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from rest_framework import permissions, viewsets
+from rest_framework import viewsets
+from rest_framework import filters
+from django_filters.rest_framework import DjangoFilterBackend
 
-
+from .filters import TitleFilter
+from .mixins import ListCreateDeleteMixin
+from .permissions import IsAuthorModeratorAdminOrReadOnly, IsAdminOrReadOnly
 from .serializers import (
     CategorySerializer,
     CommentSerializer,
     GenreSerializer,
     ReviewSerializer,
-    TitleSerializer
+    TitleSerializer,
+    TitlePostSerializer
 )
-from .mixins import ListCreateDeleteMixin
 from reviews.models import (
     Category,
     Genre,
@@ -19,9 +23,12 @@ from reviews.models import (
 )
 
 
-class CatigoryViewSet(ListCreateDeleteMixin):
+class CategoryViewSet(ListCreateDeleteMixin):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
+    search_fields = ('name',)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -29,11 +36,24 @@ class TitleViewSet(viewsets.ModelViewSet):
         rating=Avg('reviews__score')
     )
     serializer_class = TitleSerializer
+    http_method_names = ['get', 'post', 'delete', 'patch']
+    permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
+    filterset_class = TitleFilter
+    search_fields = ('name',)
+
+    def get_serializer_class(self):
+        if self.action in ['create', 'partial_update']:
+            return TitlePostSerializer
+        return TitleSerializer
 
 
 class GenreViewSet(ListCreateDeleteMixin):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (filters.SearchFilter, DjangoFilterBackend,)
+    search_fields = ('name',)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -41,6 +61,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     serializer_class = ReviewSerializer
     http_method_names = ['get', 'post', 'delete', 'patch']
+    permission_classes = (IsAuthorModeratorAdminOrReadOnly,)
 
     def get_title(self):
         title_id = self.kwargs.get('title_id')
@@ -56,7 +77,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         title = self.get_title()
         serializer.save(
             author=self.request.user,
-            title_id=title
+            title=title
         )
 
 
@@ -65,6 +86,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     serializer_class = CommentSerializer
     http_method_names = ['get', 'post', 'delete', 'patch']
+    permission_classes = (IsAuthorModeratorAdminOrReadOnly,)
 
     def get_review(self):
         review_id = self.kwargs.get('review_id')
@@ -80,5 +102,5 @@ class CommentViewSet(viewsets.ModelViewSet):
         review = self.get_review()
         serializer.save(
             author=self.request.user,
-            review_id=review
+            review=review
         )

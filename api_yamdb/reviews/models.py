@@ -70,7 +70,7 @@ class Title(models.Model):
 class Review(models.Model):
     """Модель отзыва к произведению."""
 
-    title_id = models.ForeignKey(
+    title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
         verbose_name='Произведение'
@@ -92,12 +92,18 @@ class Review(models.Model):
         default_related_name = 'reviews'
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['title', 'author'],
+                name='unique_title_author'
+            )
+        ]
 
 
 class Comment(models.Model):
     """Модель комментария к отзыву."""
 
-    review_id = models.ForeignKey(
+    review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
         verbose_name='Отзыв'

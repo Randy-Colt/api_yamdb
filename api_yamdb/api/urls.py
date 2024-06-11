@@ -1,14 +1,9 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-# Импорты как у Андрея!
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
 
 from .constants import API_VERSION
 from .views import (
-    CatigoryViewSet,
+    CategoryViewSet,
     CommentViewSet,
     GenreViewSet,
     ReviewViewSet,
@@ -17,7 +12,7 @@ from .views import (
 
 router_v1 = DefaultRouter()
 
-router_v1.register('categories', CatigoryViewSet, basename='categories')
+router_v1.register('categories', CategoryViewSet, basename='categories')
 router_v1.register('titles', TitleViewSet, basename='titles')
 router_v1.register('genres', GenreViewSet, basename='genres')
 router_v1.register(
