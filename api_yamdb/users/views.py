@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
-from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import (
     filters,
     generics,
@@ -13,8 +13,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
-from .serializers import SignUpSerializer, UserSerializer, UserMeSerializer
-from .utils import send_confirmation_email, generate_confirmation_code
+from .serializers import AccessTokenSerializer, SignUpSerializer, UserSerializer, UserMeSerializer
+from .utils import generate_confirmation_code, send_confirmation_email
 from api.permissions import IsAdmin
 
 User = get_user_model()
@@ -94,16 +94,10 @@ class SignUpView(views.APIView):
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def obtain_token(request):
-    if 'username' not in request.data or (
-       'confirmation_code' not in request.data):
-        return Response(
-            {'field_name': (
-                'Отсутствует обязательное поле или оно некорректно')},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
-    username = request.data.get('username')
-    confirmation_code = request.data.get('confirmation_code')
+    serializer = AccessTokenSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    username = serializer.validated_data['username']
+    confirmation_code = serializer.validated_data['confirmation_code']
 
     user = get_object_or_404(User, username=username)
 

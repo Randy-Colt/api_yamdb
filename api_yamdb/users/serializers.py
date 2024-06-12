@@ -41,3 +41,8 @@ class SignUpSerializer(serializers.ModelSerializer):
         user.confirmation_code = generate_confirmation_code()
         user.save()
         return user
+
+
+class AccessTokenSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    confirmation_code = serializers.CharField(required=True)

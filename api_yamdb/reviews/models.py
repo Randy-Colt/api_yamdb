@@ -2,8 +2,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth import get_user_model
 from django.db import models
 
-from api.constants import (
-    GENRE_SLUG_MAX, GENRE_NAME_MAX, MIN_SCORE, MAX_SCORE, TITLE_NAME_MAX)
+from api.constants import GENRE_SLUG_MAX, MIN_SCORE, MAX_SCORE, NAME_MAX
 
 
 User = get_user_model()
@@ -14,7 +13,7 @@ class Category(models.Model):
 
     name = models.CharField(
         verbose_name='Категория',
-        max_length=256,
+        max_length=NAME_MAX,
         unique=True
     )
     slug = models.SlugField(
@@ -24,6 +23,7 @@ class Category(models.Model):
     )
 
     class Meta:
+        ordering = 'name',
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
@@ -33,13 +33,14 @@ class Genre(models.Model):
 
     name = models.CharField(
         verbose_name='Название',
-        max_length=GENRE_NAME_MAX,
+        max_length=NAME_MAX,
         unique=True
     )
     slug = models.SlugField(
         verbose_name='Слаг', max_length=GENRE_SLUG_MAX, unique=True)
 
     class Meta:
+        ordering = 'name',
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
@@ -47,7 +48,7 @@ class Genre(models.Model):
 class Title(models.Model):
     """Модель для хранения информации о произведении."""
 
-    name = models.CharField(verbose_name='Название', max_length=TITLE_NAME_MAX)
+    name = models.CharField(verbose_name='Название', max_length=NAME_MAX)
     year = models.IntegerField(verbose_name='Год выпуска')
     description = models.TextField(
         verbose_name='Описание',
@@ -62,6 +63,7 @@ class Title(models.Model):
     )
 
     class Meta:
+        ordering = 'name',
         default_related_name = 'titles'
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
