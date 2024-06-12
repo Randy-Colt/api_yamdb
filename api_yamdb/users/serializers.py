@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+
 from .utils import generate_confirmation_code
 
 User = get_user_model()
@@ -37,7 +38,6 @@ class SignUpSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
-        confirmation_code = generate_confirmation_code()
-        user.confirmation_code = confirmation_code
+        user.confirmation_code = generate_confirmation_code()
         user.save()
         return user

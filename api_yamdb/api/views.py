@@ -1,12 +1,12 @@
 from django.db.models import Avg
+from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework import filters
-from django_filters.rest_framework import DjangoFilterBackend
 
 from .filters import TitleFilter
 from .mixins import ListCreateDeleteMixin
-from .permissions import IsAuthorModeratorAdminOrReadOnly, IsAdminOrReadOnly
+from .permissions import IsAdminOrReadOnly, IsAuthorModeratorAdminOrReadOnly
 from .serializers import (
     CategorySerializer,
     CommentSerializer,
@@ -24,6 +24,8 @@ from reviews.models import (
 
 
 class CategoryViewSet(ListCreateDeleteMixin):
+    """Вьюсет для получения списка категорий, их создания и удаления."""
+
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = (IsAdminOrReadOnly,)
@@ -32,6 +34,8 @@ class CategoryViewSet(ListCreateDeleteMixin):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
+    """Вьюсет для работы с произведениями."""
+
     queryset = Title.objects.all().annotate(
         rating=Avg('reviews__score')
     )
@@ -49,6 +53,8 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 
 class GenreViewSet(ListCreateDeleteMixin):
+    """Вьюсет для получения списка жанров, их создания и удаления."""
+
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = (IsAdminOrReadOnly,)

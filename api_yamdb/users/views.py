@@ -1,4 +1,6 @@
 from django.contrib.auth import get_user_model
+from django_filters.rest_framework import DjangoFilterBackend
+from django.shortcuts import get_object_or_404
 from rest_framework import (
     filters,
     generics,
@@ -9,12 +11,11 @@ from rest_framework import (
 )
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
-from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework_simplejwt.tokens import AccessToken
 
 from .serializers import SignUpSerializer, UserSerializer, UserMeSerializer
-from api.permissions import IsAdmin
 from .utils import send_confirmation_email, generate_confirmation_code
+from api.permissions import IsAdmin
 
 User = get_user_model()
 
@@ -63,12 +64,12 @@ class SignUpView(views.APIView):
         try:
             user = User.objects.get(username=username, email=email)
             if user.confirmation_code == confirmation_code:
-                refresh = RefreshToken.for_user(user)
+                access = AccessToken.for_user(user)
                 return Response({
-                    'refresh': str(refresh),
-                    'access': str(refresh.access_token),
+                    'access': str(access),
                 }, status=status.HTTP_200_OK)
             else:
+                # Обновляем код подтверждения для существующего пользователя
                 user.confirmation_code = generate_confirmation_code()
                 user.save()
                 send_confirmation_email(user.email, user.confirmation_code)
@@ -92,24 +93,19 @@ class SignUpView(views.APIView):
 
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
-
 def obtain_token(request):
-    if 'username' not in request.data or 'confirmation_code' not in request.data:
+    if 'username' not in request.data or (
+       'confirmation_code' not in request.data):
         return Response(
-            {'field_name': ('Отсутствует обязательное поле или оно некорректно')},
+            {'field_name': (
+                'Отсутствует обязательное поле или оно некорректно')},
             status=status.HTTP_400_BAD_REQUEST
         )
 
     username = request.data.get('username')
     confirmation_code = request.data.get('confirmation_code')
 
-    try:
-        user = User.objects.get(username=username)
-    except User.DoesNotExist:
-        return Response(
-            {'error': 'Неверное имя пользователя или код подтверждения'},
-            status=status.HTTP_404_NOT_FOUND
-        )
+    user = get_object_or_404(User, username=username)
 
     if user.confirmation_code != confirmation_code:
         return Response(
@@ -117,9 +113,8 @@ def obtain_token(request):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    refresh = RefreshToken.for_user(user)
+    access = AccessToken.for_user(user)
 
     return Response({
-        'refresh': str(refresh),
-        'access': str(refresh.access_token),
+        'access': str(access),
     }, status=status.HTTP_200_OK)

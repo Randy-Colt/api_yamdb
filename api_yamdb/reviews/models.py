@@ -1,9 +1,9 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth import get_user_model
 from django.db import models
-from api.constants import GENRE_SLUG_MAX, GENRE_NAME_MAX, TITLE_NAME_MAX
 
-from api.constants import MIN_SCORE, MAX_SCORE
+from api.constants import (
+    GENRE_SLUG_MAX, GENRE_NAME_MAX, MIN_SCORE, MAX_SCORE, TITLE_NAME_MAX)
 
 
 User = get_user_model()
@@ -45,7 +45,7 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
-    """ Модель для хранения информации о произведении."""
+    """Модель для хранения информации о произведении."""
 
     name = models.CharField(verbose_name='Название', max_length=TITLE_NAME_MAX)
     year = models.IntegerField(verbose_name='Год выпуска')
