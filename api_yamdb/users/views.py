@@ -69,7 +69,6 @@ class SignUpView(views.APIView):
                     'access': str(refresh.access_token),
                 }, status=status.HTTP_200_OK)
             else:
-                # Обновляем код подтверждения для существующего пользователя
                 user.confirmation_code = generate_confirmation_code()
                 user.save()
                 send_confirmation_email(user.email, user.confirmation_code)
@@ -95,16 +94,28 @@ class SignUpView(views.APIView):
 @permission_classes([permissions.AllowAny])
 
 def obtain_token(request):
+    if 'username' not in request.data or 'confirmation_code' not in request.data:
+        return Response(
+            {'field_name': ('Отсутствует обязательное поле или оно некорректно')},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
     username = request.data.get('username')
     confirmation_code = request.data.get('confirmation_code')
 
     try:
-        user = User.objects.get(
-            username=username, confirmation_code=confirmation_code)
+        user = User.objects.get(username=username)
     except User.DoesNotExist:
-        return Response({'error': (
-            'Неверное имя пользователя или код подтверждения')},
-            status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {'error': 'Неверное имя пользователя или код подтверждения'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    if user.confirmation_code != confirmation_code:
+        return Response(
+            {'error': 'Неверный код подтверждения'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
     refresh = RefreshToken.for_user(user)
 
