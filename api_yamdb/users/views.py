@@ -13,9 +13,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
+from api.permissions import IsAdmin
 from .serializers import AccessTokenSerializer, SignUpSerializer, UserSerializer, UserMeSerializer
 from .utils import generate_confirmation_code, send_confirmation_email
-from api.permissions import IsAdmin
 
 User = get_user_model()
 
