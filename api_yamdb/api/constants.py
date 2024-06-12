@@ -1,5 +1,5 @@
-GENRE_NAME_MAX = 256
-TITLE_NAME_MAX = 256
+# Максимальное кол-во символов.
+NAME_MAX = 256
 GENRE_SLUG_MAX = 50
 
 # Версии API.
