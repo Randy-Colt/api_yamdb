@@ -6,6 +6,7 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели пользователя."""
 
     class Meta:
         model = User
@@ -14,11 +15,14 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserMeSerializer(UserSerializer):
+    """Сериализатор для текущего пользователя."""
 
     role = serializers.CharField(read_only=True)
 
 
 class SignUpSerializer(serializers.ModelSerializer):
+    """Сериализатор для регистрации нового пользователя."""
+
     confirmation_code = serializers.CharField(read_only=True)
 
     class Meta:
@@ -27,7 +31,8 @@ class SignUpSerializer(serializers.ModelSerializer):
 
     def validate_username(self, value):
         if value.lower() == 'me':
-            raise serializers.ValidationError("Имя пользователя 'me' недопустимо.")
+            raise serializers.ValidationError(
+                "Имя пользователя 'me' недопустимо.")
         return value
 
     def create(self, validated_data):

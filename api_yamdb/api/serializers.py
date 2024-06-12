@@ -1,5 +1,4 @@
 from rest_framework import serializers
-
 from reviews.models import (
     Category,
     Comment,
@@ -81,7 +80,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         if (request.method == 'POST'
             and Review.objects.filter(
                 author=request.user, title_id=title_id
-            ).exists()):
+                ).exists()):
             raise serializers.ValidationError(
                 'Вы уже оставили отзыв на это произведение.'
             )
@@ -89,8 +88,8 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-
     """Сериализатор для модели Комментариев."""
+
     author = serializers.SlugRelatedField(
         read_only=True,
         slug_field='username'

@@ -2,8 +2,11 @@ from rest_framework import permissions
 
 
 class IsAuthorModeratorAdminOrReadOnly(permissions.BasePermission):
-    """Разрешение на изменение и удаление Отзыва и Комментария
-        Автором/Модератором/Админом."""
+    """
+    Разрешение на изменение и удаление Отзыва и Комментария.
+
+    Автором/Модератором/Админом.
+    """
 
     message = 'У вас нет доступа для совершения этого действия.'
 
@@ -24,8 +27,10 @@ class IsAuthorModeratorAdminOrReadOnly(permissions.BasePermission):
 
 
 class IsAdminOrReadOnly(permissions.BasePermission):
-    """Разрешение на изменение и удаление Произведения,
-        Жанра и Категории Админом."""
+    """Разрешение на изменение и удаление Произведения.
+
+    Жанра и Категории Админом.
+    """
 
     message = 'У вас нет доступа для совершения этого действия.'
 
@@ -54,10 +59,9 @@ class IsAdmin(permissions.BasePermission):
         return (request.user.is_authenticated
                 and (request.user.role == 'admin'
                      or request.user.is_staff is True)
-        )
+                )
 
     def has_object_permission(self, request, view, obj):
         return (
             request.user.role == 'admin'
-            or request.user.is_staff is True
-        )
+            or request.user.is_staff is True)

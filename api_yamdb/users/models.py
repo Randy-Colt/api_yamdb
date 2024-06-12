@@ -6,6 +6,8 @@ class User(AbstractUser):
     """Модель пользователя."""
 
     class Role(models.TextChoices):
+        """Определение возможных ролей пользователей."""
+
         USER = 'user'
         MODER = 'moderator'
         ADMIN = 'admin'
@@ -24,11 +26,10 @@ class User(AbstractUser):
         default=Role.USER
     )
     confirmation_code = models.CharField(
-        max_length=300,
+        max_length=20,
         unique=True,
         blank=True,
         null=True,
-        editable=False
     )
 
     class Meta:
