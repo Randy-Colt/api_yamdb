@@ -1,8 +1,11 @@
 from django.contrib import admin
+from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 from import_export.admin import ImportExportModelAdmin
-from users.models import User
+
 from reviews.models import Category, Genre, Title, Review, Comment
+
+User = get_user_model()
 
 
 # Расширяем ImportExportModelAdmin для включения модели пользователя

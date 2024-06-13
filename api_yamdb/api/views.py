@@ -1,28 +1,37 @@
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, viewsets
+from rest_framework import filters, mixins, viewsets
 
-from reviews.models import (
-    Category,
-    Genre,
-    Review,
-    Title
-)
-from .filters import TitleFilter
-from .mixins import ListCreateDeleteMixin
-from .permissions import IsAdminOrReadOnly, IsAuthorModeratorAdminOrReadOnly
-from .serializers import (
+from api.filters import TitleFilter
+from api.permissions import IsAdminOrReadOnly, IsAuthorModeratorAdminOrReadOnly
+from api.serializers import (
     CategorySerializer,
     CommentSerializer,
     GenreSerializer,
-    ReviewSerializer,
+    TitlePostSerializer,
     TitleSerializer,
-    TitlePostSerializer
+    ReviewSerializer
+)
+from reviews.models import (
+    Category,
+    Genre,
+    Title,
+    Review
 )
 
 
-class CategoryViewSet(ListCreateDeleteMixin):
+class ListCreateDeleteViewSet(mixins.ListModelMixin,
+                              mixins.CreateModelMixin,
+                              mixins.DestroyModelMixin,
+                              viewsets.GenericViewSet):
+    lookup_field = 'slug'
+    search_fields = ('name',)
+    permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
+
+
+class CategoryViewSet(ListCreateDeleteViewSet):
     """Вьюсет для получения списка категорий, их создания и удаления."""
 
     queryset = Category.objects.all()
@@ -48,7 +57,7 @@ class TitleViewSet(viewsets.ModelViewSet):
         return TitleSerializer
 
 
-class GenreViewSet(ListCreateDeleteMixin):
+class GenreViewSet(ListCreateDeleteViewSet):
     """Вьюсет для получения списка жанров, их создания и удаления."""
 
     queryset = Genre.objects.all()
