@@ -29,7 +29,7 @@ class SignUpSerializer(serializers.ModelSerializer):
         fields = ('email', 'username', 'confirmation_code')
 
     def validate_username(self, value):
-        if value.lower() == 'me':
+        if value == 'me':
             raise serializers.ValidationError(
                 "Имя пользователя 'me' недопустимо.")
         return value

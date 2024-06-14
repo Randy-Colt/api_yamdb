@@ -28,7 +28,7 @@ class Title(models.Model):
     """Модель для хранения информации о произведении."""
 
     name = models.CharField(verbose_name='Название', max_length=NAME_MAX)
-    year = models.IntegerField(verbose_name='Год выпуска')
+    year = models.SmallIntegerField(verbose_name='Год выпуска')
     description = models.TextField(
         verbose_name='Описание',
         blank=True,
