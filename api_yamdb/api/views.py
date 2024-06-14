@@ -1,7 +1,7 @@
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, mixins, viewsets
+from rest_framework import filters, mixins, permissions, viewsets
 
 from api.filters import TitleFilter
 from api.permissions import IsAdminOrReadOnly, IsAuthorModeratorAdminOrReadOnly
@@ -69,7 +69,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     serializer_class = ReviewSerializer
     http_method_names = ['get', 'post', 'delete', 'patch']
-    permission_classes = (IsAuthorModeratorAdminOrReadOnly,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          IsAuthorModeratorAdminOrReadOnly,)
 
     def get_title(self):
         title_id = self.kwargs.get('title_id')
@@ -94,7 +95,8 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     serializer_class = CommentSerializer
     http_method_names = ['get', 'post', 'delete', 'patch']
-    permission_classes = (IsAuthorModeratorAdminOrReadOnly,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          IsAuthorModeratorAdminOrReadOnly,)
 
     def get_review(self):
         review_id = self.kwargs.get('review_id')

@@ -25,6 +25,19 @@ class User(AbstractUser):
         default=Role.USER,
     )
 
+    @property
+    def is_personal(self):
+        return any(
+            (self.role == self.Role.ADMIN,
+             self.is_superuser,
+             self.is_staff,
+             self.role == self.Role.MODER)
+        )
+
+    @property
+    def is_admin(self):
+        return any((self.role == self.Role.ADMIN, self.is_superuser))
+
     class Meta:
         ordering = 'username',
         verbose_name = 'Пользователь'
