@@ -32,7 +32,6 @@ Cоздать и активировать виртуальное окружен�
 Для Linux/macOS:
 ```
 python3 -m venv env
-
 source env/bin/activate
 ```
 
@@ -121,3 +120,9 @@ api/v1/titles/
   ]
 }
 ```
+
+### Авторы проекта:
+
+- Москвина Анастасия - (https://github.com/MoskvinaAnastasia)
+- Сущева Джейран - (https://github.com/Dzheiran)
+- Логвинов Андрей - (https://github.com/Randy-Colt)

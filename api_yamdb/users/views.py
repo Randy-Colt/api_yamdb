@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import (
@@ -14,13 +15,13 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
 from api.permissions import IsAdmin
-from .serializers import (
+from users.serializers import (
     AccessTokenSerializer,
     SignUpSerializer,
     UserSerializer,
     UserMeSerializer
 )
-from .utils import generate_confirmation_code, send_confirmation_email
+from users.utils import send_confirmation_email
 
 User = get_user_model()
 
@@ -68,26 +69,25 @@ class SignUpView(views.APIView):
 
         try:
             user = User.objects.get(username=username, email=email)
-            if user.confirmation_code == confirmation_code:
+            if default_token_generator.check_token(user, confirmation_code):
                 access = AccessToken.for_user(user)
                 return Response({
                     'access': str(access),
                 }, status=status.HTTP_200_OK)
-            else:
-                # Обновляем код подтверждения для существующего пользователя
-                user.confirmation_code = generate_confirmation_code()
-                user.save()
-                send_confirmation_email(user.email, user.confirmation_code)
-                return Response({
-                                'message': (
-                                    'Новый код подтверждения '
-                                    'отправлен на вашу почту.')
-                                }, status=status.HTTP_200_OK)
+            # Обновляем код подтверждения для существующего пользователя
+            confirmation_code = default_token_generator.make_token(user)
+            user.save()
+            send_confirmation_email(user.email, confirmation_code)
+            return Response({
+                            'message': (
+                                'Новый код подтверждения '
+                                'отправлен на вашу почту.')
+                            }, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             serializer = SignUpSerializer(data=request.data)
             if serializer.is_valid():
                 user = serializer.save()
-                send_confirmation_email(user.email, user.confirmation_code)
+                send_confirmation_email(user.email, confirmation_code)
                 return Response({
                     'username': user.username,
                     'email': user.email
@@ -106,7 +106,7 @@ def obtain_token(request):
 
     user = get_object_or_404(User, username=username)
 
-    if user.confirmation_code != confirmation_code:
+    if not default_token_generator.check_token(user, confirmation_code):
         return Response(
             {'error': 'Неверный код подтверждения'},
             status=status.HTTP_400_BAD_REQUEST

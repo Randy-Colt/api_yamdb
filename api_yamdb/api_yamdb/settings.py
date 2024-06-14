@@ -21,8 +21,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'django_filters',
-    'api.apps.ApiConfig',
     'reviews.apps.ReviewsConfig',
+    'api.apps.ApiConfig',
     'users.apps.UsersConfig',
 ]
 
@@ -122,3 +122,5 @@ SIMPLE_JWT = {
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 
 EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
+
+EMAIL = 'token@yamdb.ru'
