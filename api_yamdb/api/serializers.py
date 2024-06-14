@@ -1,4 +1,7 @@
+from datetime import datetime
+
 from rest_framework import serializers
+
 from reviews.models import (
     Category,
     Comment,
@@ -24,6 +27,16 @@ class GenreSerializer(serializers.ModelSerializer):
         fields = ('name', 'slug')
 
 
+class GenreField(serializers.SlugRelatedField):
+    """Кастомное реляционное поле для сериализации жанров."""
+
+    def to_representation(self, value):
+        return {
+            'name': value.name,
+            'slug': value.slug
+        }
+
+
 class TitleSerializer(serializers.ModelSerializer):
     """Сериализатор для просмотра модели Title."""
 
@@ -45,10 +58,12 @@ class TitleSerializer(serializers.ModelSerializer):
 class TitlePostSerializer(serializers.ModelSerializer):
     """Сериализатор для создания объекта Title."""
 
-    genre = serializers.SlugRelatedField(
+    genre = GenreField(
         many=True,
         queryset=Genre.objects.all(),
-        slug_field='slug'
+        slug_field='slug',
+        required=True,
+        allow_empty=False
     )
     category = serializers.SlugRelatedField(
         queryset=Category.objects.all(),
@@ -58,8 +73,27 @@ class TitlePostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = ('id', 'name', 'year', 'rating', 'description',
-                  'genre', 'category')
+        fields = '__all__'
+
+    def validate_year(self, value):
+        if value > datetime.now().year:
+            raise serializers.ValidationError(
+                'Год выпуска не может быть больше текущего.'
+            )
+        return value
+
+    def to_representation(self, instance):
+        """Переопределение метода для вывода информации."""
+        representation = super().to_representation(instance)
+        representation['genre'] = [
+            {'name': genre.name, 'slug': genre.slug}
+            for genre in instance.genre.all()
+        ]
+        representation['category'] = {
+            'name': instance.category.name,
+            'slug': instance.category.slug
+        }
+        return representation
 
 
 class ReviewSerializer(serializers.ModelSerializer):
