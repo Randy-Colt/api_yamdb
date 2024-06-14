@@ -50,21 +50,6 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-# class UserMeView(generics.RetrieveUpdateAPIView):
-#     """
-#     Представление для просмотра и обновления информации о текущем пользователе.
-
-#     Разрешенные методы: GET, PATCH.
-#     """
-
-#     serializer_class = UserMeSerializer
-#     permission_classes = (permissions.IsAuthenticated,)
-#     http_method_names = ['get', 'patch']
-
-#     def get_object(self):
-#         return self.request.user
-
-
 class SignUpView(views.APIView):
     """
     Представление для регистрации нового пользователя.
