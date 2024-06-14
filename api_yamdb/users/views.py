@@ -10,7 +10,7 @@ from rest_framework import (
     views,
     viewsets
 )
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
@@ -19,7 +19,7 @@ from users.serializers import (
     AccessTokenSerializer,
     SignUpSerializer,
     UserSerializer,
-    UserMeSerializer
+    # UserMeSerializer
 )
 from users.utils import send_confirmation_email
 
@@ -33,24 +33,21 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     lookup_field = 'username'
     http_method_names = ['get', 'post', 'delete', 'patch']
-    permission_classes = (IsAdmin,)
+    permission_classes = (permissions.IsAuthenticated, IsAdmin,)
     filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
     search_fields = ('username',)
 
-
-class UserMeView(generics.RetrieveUpdateAPIView):
-    """
-    Представление для просмотра и обновления информации о текущем пользователе.
-
-    Разрешенные методы: GET, PATCH.
-    """
-
-    serializer_class = UserMeSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-    http_method_names = ['get', 'patch']
-
-    def get_object(self):
-        return self.request.user
+    @action(detail=False, methods=['get', 'patch'],
+            permission_classes=[permissions.IsAuthenticated])
+    def me(self, request):
+        if request.method == 'GET':
+            serializer = UserSerializer(request.user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = UserSerializer(request.user, data=request.data,
+                                    partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(role=request.user.role)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class SignUpView(views.APIView):
