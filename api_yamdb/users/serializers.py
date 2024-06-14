@@ -15,10 +15,10 @@ class UserSerializer(serializers.ModelSerializer):
                   'last_name', 'bio', 'role')
 
 
-class UserMeSerializer(UserSerializer):
-    """Сериализатор для текущего пользователя."""
+# class UserMeSerializer(UserSerializer):
+#     """Сериализатор для текущего пользователя."""
 
-    role = serializers.CharField(read_only=True)
+#     role = serializers.CharField(read_only=True)
 
 
 class SignUpSerializer(serializers.ModelSerializer):
