@@ -85,15 +85,13 @@ class SignUpView(views.APIView):
                             }, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             serializer = SignUpSerializer(data=request.data)
-            if serializer.is_valid():
-                user = serializer.save()
-                send_confirmation_email(user.email, confirmation_code)
-                return Response({
+            serializer.is_valid(raise_exception=True)
+            user = serializer.save()
+            send_confirmation_email(user.email, confirmation_code)
+            return Response({
                     'username': user.username,
                     'email': user.email
                 }, status=status.HTTP_200_OK)
-            return Response(serializer.errors,
-                            status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
