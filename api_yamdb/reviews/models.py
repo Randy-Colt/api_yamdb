@@ -1,3 +1,6 @@
+from datetime import datetime
+
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
@@ -28,7 +31,9 @@ class Title(models.Model):
     """Модель для хранения информации о произведении."""
 
     name = models.CharField(verbose_name='Название', max_length=NAME_MAX)
-    year = models.SmallIntegerField(verbose_name='Год выпуска')
+    year = models.SmallIntegerField(
+        verbose_name='Год выпуска',
+        validators=[MaxValueValidator(datetime.now().year),])
     description = models.TextField(
         verbose_name='Описание',
         blank=True,
