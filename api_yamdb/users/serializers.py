@@ -1,8 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from .utils import generate_confirmation_code
-
 User = get_user_model()
 
 
@@ -15,12 +13,6 @@ class UserSerializer(serializers.ModelSerializer):
                   'last_name', 'bio', 'role')
 
 
-class UserMeSerializer(UserSerializer):
-    """Сериализатор для текущего пользователя."""
-
-    role = serializers.CharField(read_only=True)
-
-
 class SignUpSerializer(serializers.ModelSerializer):
     """Сериализатор для регистрации нового пользователя."""
 
@@ -31,16 +23,10 @@ class SignUpSerializer(serializers.ModelSerializer):
         fields = ('email', 'username', 'confirmation_code')
 
     def validate_username(self, value):
-        if value.lower() == 'me':
+        if value == 'me':
             raise serializers.ValidationError(
                 "Имя пользователя 'me' недопустимо.")
         return value
-
-    def create(self, validated_data):
-        user = User.objects.create_user(**validated_data)
-        user.confirmation_code = generate_confirmation_code()
-        user.save()
-        return user
 
 
 class AccessTokenSerializer(serializers.Serializer):

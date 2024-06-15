@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import (
@@ -9,18 +10,18 @@ from rest_framework import (
     views,
     viewsets
 )
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
 from api.permissions import IsAdmin
-from .serializers import (
+from users.serializers import (
     AccessTokenSerializer,
     SignUpSerializer,
     UserSerializer,
-    UserMeSerializer
+    # UserMeSerializer
 )
-from .utils import generate_confirmation_code, send_confirmation_email
+from users.utils import send_confirmation_email
 
 User = get_user_model()
 
@@ -32,24 +33,21 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     lookup_field = 'username'
     http_method_names = ['get', 'post', 'delete', 'patch']
-    permission_classes = (IsAdmin,)
+    permission_classes = (permissions.IsAuthenticated, IsAdmin,)
     filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
     search_fields = ('username',)
 
-
-class UserMeView(generics.RetrieveUpdateAPIView):
-    """
-    Представление для просмотра и обновления информации о текущем пользователе.
-
-    Разрешенные методы: GET, PATCH.
-    """
-
-    serializer_class = UserMeSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-    http_method_names = ['get', 'patch']
-
-    def get_object(self):
-        return self.request.user
+    @action(detail=False, methods=['get', 'patch'],
+            permission_classes=[permissions.IsAuthenticated])
+    def me(self, request):
+        if request.method == 'GET':
+            serializer = UserSerializer(request.user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = UserSerializer(request.user, data=request.data,
+                                    partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(role=request.user.role)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class SignUpView(views.APIView):
@@ -68,32 +66,29 @@ class SignUpView(views.APIView):
 
         try:
             user = User.objects.get(username=username, email=email)
-            if user.confirmation_code == confirmation_code:
+            if default_token_generator.check_token(user, confirmation_code):
                 access = AccessToken.for_user(user)
                 return Response({
                     'access': str(access),
                 }, status=status.HTTP_200_OK)
-            else:
-                # Обновляем код подтверждения для существующего пользователя
-                user.confirmation_code = generate_confirmation_code()
-                user.save()
-                send_confirmation_email(user.email, user.confirmation_code)
-                return Response({
-                                'message': (
-                                    'Новый код подтверждения '
-                                    'отправлен на вашу почту.')
-                                }, status=status.HTTP_200_OK)
+            # Обновляем код подтверждения для существующего пользователя
+            confirmation_code = default_token_generator.make_token(user)
+            user.save()
+            send_confirmation_email(user.email, confirmation_code)
+            return Response({
+                            'message': (
+                                'Новый код подтверждения '
+                                'отправлен на вашу почту.')
+                            }, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             serializer = SignUpSerializer(data=request.data)
-            if serializer.is_valid():
-                user = serializer.save()
-                send_confirmation_email(user.email, user.confirmation_code)
-                return Response({
+            serializer.is_valid(raise_exception=True)
+            user = serializer.save()
+            send_confirmation_email(user.email, confirmation_code)
+            return Response({
                     'username': user.username,
                     'email': user.email
                 }, status=status.HTTP_200_OK)
-            return Response(serializer.errors,
-                            status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
@@ -106,7 +101,7 @@ def obtain_token(request):
 
     user = get_object_or_404(User, username=username)
 
-    if user.confirmation_code != confirmation_code:
+    if not default_token_generator.check_token(user, confirmation_code):
         return Response(
             {'error': 'Неверный код подтверждения'},
             status=status.HTTP_400_BAD_REQUEST
