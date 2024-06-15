@@ -25,7 +25,7 @@ class TitleAdmin(ImportExportModelAdmin):
     filter_horizontal = ('genre',)
 
     def display_genre(self, obj):
-        """Возвращает строку из жанров, разделенных запятыми"""
+        """Возвращает строку из жанров, разделенных запятыми."""
         return ', '.join(genre.name for genre in obj.genre.all())
     display_genre.short_description = 'Жанры'
 

@@ -4,7 +4,6 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import (
     filters,
-    generics,
     permissions,
     status,
     views,
@@ -86,9 +85,9 @@ class SignUpView(views.APIView):
             user = serializer.save()
             send_confirmation_email(user.email, confirmation_code)
             return Response({
-                    'username': user.username,
-                    'email': user.email
-                }, status=status.HTTP_200_OK)
+                'username': user.username,
+                'email': user.email
+            }, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])

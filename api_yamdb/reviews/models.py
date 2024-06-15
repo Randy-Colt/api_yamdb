@@ -33,7 +33,7 @@ class Title(models.Model):
     name = models.CharField(verbose_name='Название', max_length=NAME_MAX)
     year = models.SmallIntegerField(
         verbose_name='Год выпуска',
-        validators=[MaxValueValidator(datetime.now().year),])
+        validators=[MaxValueValidator(datetime.now().year)])
     description = models.TextField(
         verbose_name='Описание',
         blank=True,
