@@ -26,10 +26,9 @@ class User(AbstractUser):
     )
 
     @property
-    def is_personal(self):
+    def is_personnel(self):
         return any(
             (self.role == self.Role.ADMIN,
-             self.is_superuser,
              self.is_staff,
              self.role == self.Role.MODER)
         )

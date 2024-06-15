@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
-from reviews.constants import NAME_MAX
+from reviews.constants import NAME_MAX, TEXT_SLICE
 
 User = get_user_model()
 
@@ -37,4 +37,7 @@ class ReviewCommBaseModel(models.Model):
         ordering = 'pub_date',
 
     def __str__(self):
-        return f'Публикация автора {self.author}'  # наверное, поменяем
+        return (
+            f'Публикация автора {self.author},\n'
+            f'Текст: {self.text[:TEXT_SLICE]}'
+        )

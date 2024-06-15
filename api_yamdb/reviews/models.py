@@ -1,12 +1,10 @@
-from datetime import datetime
-
-from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 from reviews.abstract_model import CategoryGenreBaseModel, ReviewCommBaseModel
 from reviews.constants import MAX_SCORE, MIN_SCORE, NAME_MAX
+from reviews.validators import validate_year
 
 User = get_user_model()
 
@@ -33,7 +31,7 @@ class Title(models.Model):
     name = models.CharField(verbose_name='Название', max_length=NAME_MAX)
     year = models.SmallIntegerField(
         verbose_name='Год выпуска',
-        validators=[MaxValueValidator(datetime.now().year)])
+        validators=[validate_year])
     description = models.TextField(
         verbose_name='Описание',
         blank=True,
@@ -69,11 +67,11 @@ class Review(ReviewCommBaseModel):
         validators=[
             MinValueValidator(
                 MIN_SCORE,
-                message='Нельзя поставить оценку ниже 0!'
+                message=f'Нельзя поставить оценку ниже {MIN_SCORE}!'
             ),
             MaxValueValidator(
                 MAX_SCORE,
-                message='Нельзя поставить оценку выше 10!'
+                message=f'Нельзя поставить оценку выше {MAX_SCORE}!'
             )
         ]
     )

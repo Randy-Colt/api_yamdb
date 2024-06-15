@@ -63,13 +63,15 @@ class TitlePostSerializer(serializers.ModelSerializer):
         queryset=Genre.objects.all(),
         slug_field='slug',
         required=True,
-        allow_empty=False
+        allow_empty=False,
+        allow_null=False
     )
     category = serializers.SlugRelatedField(
         queryset=Category.objects.all(),
         slug_field='slug'
     )
     rating = serializers.IntegerField(read_only=True)
+    year = serializers.IntegerField(required=True)
 
     class Meta:
         model = Title
@@ -83,17 +85,8 @@ class TitlePostSerializer(serializers.ModelSerializer):
         return value
 
     def to_representation(self, instance):
-        """Переопределение метода для вывода информации."""
-        representation = super().to_representation(instance)
-        representation['genre'] = [
-            {'name': genre.name, 'slug': genre.slug}
-            for genre in instance.genre.all()
-        ]
-        representation['category'] = {
-            'name': instance.category.name,
-            'slug': instance.category.slug
-        }
-        return representation
+        serializer = TitleSerializer(instance)
+        return serializer.data
 
 
 class ReviewSerializer(serializers.ModelSerializer):

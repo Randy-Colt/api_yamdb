@@ -24,10 +24,10 @@ class TitleAdmin(ImportExportModelAdmin):
     ordering = ('name',)
     filter_horizontal = ('genre',)
 
+    @admin.display(description='Жанры')
     def display_genre(self, obj):
         """Возвращает строку из жанров, разделенных запятыми."""
         return ', '.join(genre.name for genre in obj.genre.all())
-    display_genre.short_description = 'Жанры'
 
 
 @admin.register(Review)
@@ -50,5 +50,5 @@ User = get_user_model()
 
 
 @admin.register(User)
-class CustomUserAdmin(ImportExportModelAdmin, UserAdmin):
+class UserAdmin(ImportExportModelAdmin, UserAdmin):
     pass
