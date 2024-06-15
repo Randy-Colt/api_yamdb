@@ -12,26 +12,36 @@ class User(AbstractUser):
         MODER = 'moderator'
         ADMIN = 'admin'
 
-    email = models.EmailField('Почта', max_length=254, unique=True)
+    email = models.EmailField('Почта', unique=True)
     bio = models.TextField(
         verbose_name='Биография',
-        max_length=300,
         blank=True,
         null=True
     )
     role = models.CharField(
         verbose_name='Роль',
-        max_length=10,
+        max_length=max([len(x[0]) for x in Role.choices]),
         choices=Role.choices,
-        default=Role.USER
-    )
-    confirmation_code = models.CharField(
-        max_length=20,
-        unique=True,
-        blank=True,
-        null=True,
+        default=Role.USER,
     )
 
+    @property
+    def is_personal(self):
+        return any(
+            (self.role == self.Role.ADMIN,
+             self.is_superuser,
+             self.is_staff,
+             self.role == self.Role.MODER)
+        )
+
+    @property
+    def is_admin(self):
+        return any((self.role == self.Role.ADMIN, self.is_superuser))
+
     class Meta:
+        ordering = 'username',
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+
+    def __str__(self):
+        return self.username

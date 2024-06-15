@@ -1,7 +1,5 @@
 # Максимальное кол-во символов.
-GENRE_NAME_MAX = 256
-TITLE_NAME_MAX = 256
-GENRE_SLUG_MAX = 50
+NAME_MAX = 256
 
 # Версии API.
 API_VERSION = 'v1'
